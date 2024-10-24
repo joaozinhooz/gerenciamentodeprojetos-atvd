@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Home</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Estilo geral */
+        body {
+            background-color: #343a40;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 70px;
+            background-color: #444950;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding-top: 20px;
+        }
+
+        /* Estilo dos ícones e links da barra lateral */
+        .sidebar a {
+            padding: 20px 0;
+            text-align: center;
+            display: block;
+            color: #fff;
+            font-size: 24px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575c64;
+            color: #ffffff;
+        }
+
+        /* Estilo do conteúdo principal */
+        .main-content {
+            margin-left: 70px;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        /* Estilo do cabeçalho superior */
+        .topbar {
+            background-color: #2c3035;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .topbar h6 {
+            margin: 0;
+        }
+
+        /* Estilo da barra de busca */
+        .search-bar {
+            background-color: #444950;
+            border-radius: 5px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            border: none;
+            background-color: #444950;
+            color: #fff;
+            margin-left: 10px;
+            outline: none;
+        }
+
+        /* Estilo da seção principal */
+        .main-section {
+            background-color: #343a40;
+            border: 2px solid #6c63ff;
+            height: calc(100vh - 100px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra lateral -->
+    <div class="sidebar">
+        <a href="home.html" title="Início"><i class="bi bi-house-door"></i></a>
+        <a href="cadastrarprojeto.html" title="Cadastro de Projetos"><i class="bi bi-file-earmark-plus"></i></a>
+        <a href="cadastraratividade.html" title="Cadastro de Atividades"><i class="bi bi-check2-square"></i></a>
+        <a href="config.html" title="Configurações"><i class="bi bi-gear"></i></a>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="main-content">
+
+        <!-- Barra superior -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/40" alt="Profile Image">
+                <h6>Hello, João</h6>
+            </div>
+        </div>
+
+        <!-- Seção principal (conteúdo) -->
+        <div class="main-section">
+            <!-- Conteúdo dinâmico da página aqui -->
+        </div>
+
+    </div>
+
+</body>
+</html>

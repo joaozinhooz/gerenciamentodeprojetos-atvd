@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Home</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Estilo geral */
+        body {
+            background-color: #343a40;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 70px;
+            background-color: #444950;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding-top: 20px;
+        }
+
+        /* Estilo dos ícones e links da barra lateral */
+        .sidebar a {
+            padding: 20px 0;
+            text-align: center;
+            display: block;
+            color: #fff;
+            font-size: 24px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575c64;
+            color: #ffffff;
+        }
+
+        /* Estilo do conteúdo principal */
+        .main-content {
+            margin-left: 70px;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        /* Estilo do cabeçalho superior */
+        .topbar {
+            background-color: #2c3035;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .topbar h6 {
+            margin: 0;
+        }
+
+        /* Estilo da seção principal */
+        .main-section {
+            background-color: #343a40;
+            border: 2px solid #6c63ff;
+            height: calc(100vh - 100px);
+            padding: 20px;
+            overflow-y: auto; /* Permitir rolagem vertical */
+        }
+
+        .project-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #6c63ff;
+            border-radius: 5px;
+            position: relative; /* Para posicionar o botão da lixeira */
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ff4d4d; /* Cor da lixeira */
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra lateral -->
+    <div class="sidebar">
+        <a href="/static/home.html" title="Início"><i class="bi bi-house-door"></i></a>
+        <a href="/static/cadastrarprojeto.html" title="Cadastro de Projetos"><i class="bi bi-file-earmark-plus"></i></a>
+        <a href="/static/cadastraratividade.html" title="Cadastro de Atividades"><i class="bi bi-check2-square"></i></a>
+        <a href="/static/config.html" title="Configurações"><i class="bi bi-gear"></i></a>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="main-content">
+
+        <!-- Barra superior -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/40" alt="Profile Image">
+                <h6>Hello, João</h6>
+            </div>
+        </div>
+
+        <!-- Seção principal (conteúdo) -->
+        <div class="main-section" id="projectList">
+            <!-- Aqui serão exibidos os projetos cadastrados -->
+        </div>
+
+        <!-- Exemplo de um item de projeto com um botão de exclusão -->
+<div id="project-1">
+    <h6>Nome do Projeto</h6>
+    <button onclick="deleteProject(1)" class="btn btn-danger">Excluir</button>
+</div>
+
+
+    </div>
+
+    <!-- O conteúdo do seu arquivo home.html -->
+<!-- Substitua o JavaScript do localStorage pelo código que busca os projetos do servidor -->
+<script>
+    window.onload = async function() {
+        await carregarProjetos(); // Chama a função para carregar projetos ao iniciar
+
+        // Adiciona evento de submit ao formulário de cadastrar atividade
+        const form = document.getElementById('cadastrarAtividadeForm');
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Evita o comportamento padrão do formulário
+
+                const formData = new FormData(form);
+                const projetoId = formData.get('projeto_id');
+                const descricao = formData.get('descricao');
+                const dueDate = formData.get('due_date');
+
+                // Chamada para o endpoint de cadastro de atividade
+                const response = await fetch('/cadastraratividade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        projeto_id: projetoId,
+                        descricao: descricao,
+                        due_date: dueDate,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Atividade cadastrada com sucesso!');
+                    // Atualiza a lista de projetos
+                    await carregarProjetos();
+                    form.reset(); // Limpa o formulário
+                } else {
+                    const error = await response.json();
+                    alert('Erro ao cadastrar atividade: ' + error.error);
+                }
+            });
+        }
+    };
+
+    async function carregarProjetos() {
+        const response = await fetch('/projetos'); // Obtém os projetos do servidor
+        
+        if (!response.ok) {
+            console.error('Erro ao buscar projetos:', response.statusText);
+            document.getElementById('projectList').innerHTML = '<p class="text-center">Erro ao carregar projetos.</p>';
+            return;
+        }
+
+        const projects = await response.json();
+        const projectList = document.getElementById('projectList');
+        projectList.innerHTML = ''; // Limpa a lista existente
+
+        if (projects.length === 0) {
+            projectList.innerHTML = '<p class="text-center">Nenhum projeto cadastrado.</p>';
+            return;
+        }
+
+        // Criar elementos para cada projeto
+        projects.forEach((project) => {
+            const projectItem = document.createElement('div');
+            projectItem.classList.add('project-item');
+            projectItem.innerHTML = `
+                <h6>${project.nome} <i class="bi bi-trash delete-btn" onclick="deleteProject(${project.id})"></i></h6>
+                <p><strong>Descrição:</strong> ${project.descricao}</p>
+                <p><strong>Tecnologias:</strong> ${project.tecnologias}</p>
+                <p><strong>Data de Início:</strong> ${project.data_inicio}</p>
+                <h6>Atividades:</h6>
+            `;
+
+            // Adicionar as atividades se existirem
+            if (project.activities && project.activities.length > 0) {
+                const activityList = document.createElement('ul');
+                project.activities.forEach(activity => {
+                    const activityItem = document.createElement('li');
+                    activityItem.innerHTML = `<strong>${activity.description}</strong> (Vencimento: ${activity.due_date})`;
+                    activityList.appendChild(activityItem);
+                });
+                projectItem.appendChild(activityList);
+            } else {
+                projectItem.innerHTML += '<p>Nenhuma atividade cadastrada.</p>';
+            }
+
+            projectList.appendChild(projectItem);
+        });
+    }
+</script>
+
+
+
+
+
+</body>
+</html>
