@@ -15,15 +15,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        /* Estilo geral */
         body {
             background-color: #343a40;
             color: #fff;
             height: 100vh;
             overflow: hidden;
         }
-
-        /* Estilo da barra lateral */
         .sidebar {
             width: 70px;
             background-color: #444950;
@@ -33,8 +30,6 @@
             height: 100%;
             padding-top: 20px;
         }
-
-        /* Estilo dos ícones e links da barra lateral */
         .sidebar a {
             padding: 20px 0;
             text-align: center;
@@ -43,21 +38,16 @@
             font-size: 24px;
             transition: 0.3s;
         }
-
         .sidebar a:hover {
             background-color: #575c64;
             color: #ffffff;
         }
-
-        /* Estilo do conteúdo principal */
         .main-content {
             margin-left: 70px;
             padding: 20px;
             height: 100vh;
-            overflow-y: auto; /* Permitir rolagem vertical */
+            overflow-y: auto;
         }
-
-        /* Estilo do cabeçalho superior */
         .topbar {
             background-color: #2c3035;
             padding: 15px;
@@ -65,32 +55,24 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .topbar img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
         }
-
         .topbar h6 {
             margin: 0;
         }
-
-        /* Estilo da seção principal */
         .main-section {
             background-color: #343a40;
             border: 2px solid #6c63ff;
             height: calc(100vh - 100px);
             padding: 20px;
         }
-
-        /* Estilo dos inputs */
         .form-label {
-            color: #ffffff; /* Cor das labels */
+            color: #ffffff;
         }
-
-        /* Estilo dos botões */
         .btn {
             margin-top: 10px;
         }
@@ -123,18 +105,18 @@
             <form id="activityForm">
                 <div class="mb-3">
                     <label for="projectSelect" class="form-label">Nome do Projeto</label>
-                    <select class="form-select" id="projectSelect" required>
+                    <select class="form-select" id="projectSelect" name="projeto_id" required>
                         <option value="">Selecione um projeto</option>
                         <!-- Os projetos serão carregados aqui via JavaScript -->
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="activityDescription" class="form-label">Descrição da Atividade</label>
-                    <textarea class="form-control" id="activityDescription" rows="3" required></textarea>
+                    <textarea class="form-control" id="activityDescription" name="descricao" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="dueDate" class="form-label">Data de Vencimento</label>
-                    <input type="date" class="form-control" id="dueDate" required>
+                    <input type="date" class="form-control" id="dueDate" name="due_date" required>
                 </div>
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary">Cadastrar</button>
@@ -146,50 +128,53 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-    const projects = await fetch('/projetos').then(res => res.json()); // Carrega os projetos
-    const projectSelect = document.getElementById('projectSelect');
+            const projects = await fetch('/projetos').then(res => res.json()); // Carrega os projetos
+            const projectSelect = document.getElementById('projectSelect');
 
-    // Limpar opções existentes
-    projectSelect.innerHTML = '<option value="">Selecione um projeto</option>';
+            // Limpar opções existentes
+            projectSelect.innerHTML = '<option value="">Selecione um projeto</option>';
 
-    // Criar opções para cada projeto
-    projects.forEach(project => {
-        const option = document.createElement('option');
-        option.value = project.id; // Usa o ID do projeto
-        option.textContent = project.nome; // Usa o nome do projeto
-        projectSelect.appendChild(option);
-    });
-});
+            // Criar opções para cada projeto
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id; // Usa o ID do projeto
+                option.textContent = project.nome; // Usa o nome do projeto
+                projectSelect.appendChild(option);
+            });
+        });
 
-// Função para cadastrar a atividade
-document.querySelector('form').addEventListener('submit', async (event) => {
-    event.preventDefault();
+        // Função para cadastrar a atividade
+        document.getElementById('activityForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o envio padrão do formulário
 
-    const formData = new FormData(event.target);
-    const data = {
-        projeto_id: formData.get('projectSelect'),  // Certifique-se de usar a chave correta
-        descricao: formData.get('activityDescription'),
-        due_date: formData.get('dueDate'),
-    };
+            const formData = new FormData(event.target);
+            const data = {
+                projeto_id: formData.get('projeto_id'),  // Chave para projeto
+                descricao: formData.get('descricao'), // Chave para descrição
+                due_date: formData.get('due_date'), // Chave para data de vencimento
+            };
 
-    console.log(data); // Para debug: mostra os dados que estão sendo enviados
+            // Para depuração: mostra os dados que estão sendo enviados
+            console.log('Dados a serem enviados:', data);
 
-    const response = await fetch('/cadastraratividade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
+            // Envia os dados para o backend
+            const response = await fetch('/cadastraratividade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
 
-    if (response.ok) {
-        window.location.reload(); // Carrega a página novamente após o cadastro
-    } else {
-        const error = await response.json();
-        console.error("Erro ao cadastrar atividade:", error);
-        alert(error.error);  // Mostra um alerta com a mensagem de erro
-    }
-});
-
+            // Verifica se a resposta foi bem-sucedida
+            if (response.ok) {
+                alert('Atividade cadastrada com sucesso!'); // Alerta de sucesso
+                window.location.reload(); // Recarrega a página
+            } else {
+                const error = await response.json();
+                console.error("Erro ao cadastrar atividade:", error);
+                alert(`Erro: ${error.error}`);  // Mostra um alerta com a mensagem de erro
+            }
+        });
     </script>
-
+    
 </body>
 </html>

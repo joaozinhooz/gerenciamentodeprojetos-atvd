@@ -55,23 +55,37 @@ def cadastrar_projeto():
 
 @app.route('/cadastraratividade', methods=['POST'])
 def cadastrar_atividade():
-    data = request.get_json()
+    data = request.json
 
-    if not data or 'projeto_id' not in data or 'descricao' not in data or 'due_date' not in data:
-        return jsonify({'error': 'Dados inválidos!'}), 400
+    projeto_id = data.get('projeto_id')
+    descricao = data.get('descricao')
+    due_date = data.get('due_date')
+
+    # Adicione depuração para ver os dados recebidos
+    print(f"Dados recebidos: projeto_id={projeto_id}, descricao={descricao}, due_date={due_date}")
+
+    if not projeto_id:
+        projeto_id = 1  # ID padrão se não fornecido
+    if not descricao:
+        descricao = "Descrição padrão"  # Usar descrição padrão
+    if not due_date:
+        due_date = datetime.today().date().isoformat()  # Data atual como padrão
 
     try:
-        nova_atividade = Atividade(
-            projeto_id=data['projeto_id'],
-            descricao=data['descricao'],
-            data_vencimento=datetime.strptime(data['due_date'], '%Y-%m-%d').date()
-        )
+        due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
+    except ValueError:
+        due_date = datetime.today().date()  # Data atual em caso de erro
+
+    nova_atividade = Atividade(projeto_id=projeto_id, descricao=descricao, data_vencimento=due_date)
+
+    try:
         db.session.add(nova_atividade)
         db.session.commit()
-        return jsonify({"message": "Atividade cadastrada com sucesso!"}), 201
+        return jsonify({"message": "Atividade cadastrada com sucesso."}), 201
     except Exception as e:
-        db.session.rollback()  # Reverte qualquer alteração em caso de erro
-        return jsonify({'error': str(e)}), 500  # Retorna o erro caso ocorra
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/')
@@ -90,49 +104,49 @@ def cadastrar_atividade_page():
 def config_page():
     return send_from_directory('static', 'config.html')
 
+# Rota para listar projetos com suas atividades
 @app.route('/projetos', methods=['GET'])
-def get_projetos():
+def listar_projetos():
     projetos = Projeto.query.all()
-    projetos_data = []
+    projetos_dados = []
     
     for projeto in projetos:
-        atividades = Atividade.query.filter_by(projeto_id=projeto.id).all()  # Obtendo as atividades do projeto
-        atividades_data = [{'description': atividade.descricao, 'due_date': atividade.data_vencimento.isoformat()} for atividade in atividades]
-        
-        projetos_data.append({
+        atividades = [{'id': atividade.id, 'descricao': atividade.descricao, 'due_date': atividade.data_vencimento.isoformat()} for atividade in projeto.atividades]
+        projetos_dados.append({
             'id': projeto.id,
             'nome': projeto.nome,
             'descricao': projeto.descricao,
             'tecnologias': projeto.tecnologias,
-            'data_inicio': projeto.data_inicio.isoformat(),  # Converte para ISO format
-            'activities': atividades_data  # Adicionando as atividades ao projeto
+            'data_inicio': projeto.data_inicio.isoformat(),
+            'atividades': atividades  # Inclui as atividades associadas ao projeto
         })
     
-    return jsonify(projetos_data)
+    return jsonify(projetos_dados)
 
-@app.route('/projetos/<int:id>', methods=['DELETE'])
-def delete_projeto(id):
-    projeto = Projeto.query.get(id)
+@app.route('/projetos/<int:project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    projeto = Projeto.query.get(project_id)
+    
     if not projeto:
-        return jsonify({'error': 'Projeto não encontrado!'}), 404
+        abort(404, description="Projeto não encontrado")
 
-    try:
-        db.session.delete(projeto)
-        db.session.commit()
-        return jsonify({'message': 'Projeto excluído com sucesso!'}), 200
-    except Exception as e:
-        db.session.rollback()  # Reverte qualquer alteração em caso de erro
-        return jsonify({'error': str(e)}), 500  # Retorna o erro caso ocorra
+    # Excluir atividades relacionadas ao projeto
+    atividades = Atividade.query.filter_by(projeto_id=project_id).all()
+    for atividade in atividades:
+        db.session.delete(atividade)
+
+    # Excluir o projeto
+    db.session.delete(projeto)
+    db.session.commit()
+
+    return jsonify({"message": "Projeto e atividades deletados com sucesso!"}), 200
 
 @app.route('/atividades', methods=['GET'])
-def listar_atividades():
-    atividades = Atividade.query.all()
-    return jsonify([{
-        'id': a.id,
-        'projeto_id': a.projeto_id,
-        'descricao': a.descricao,
-        'data_vencimento': a.data_vencimento.isoformat()
-    } for a in atividades])
+def get_atividades():
+    atividades = Atividade.query.all()  # Recupera todas as atividades
+    atividades_list = [{'id': a.id, 'descricao': a.descricao, 'due_date': a.due_date, 'projeto_id': a.projeto_id} for a in atividades]
+    return jsonify(atividades_list)
+
 
 if __name__ == '__main__':
     with app.app_context():

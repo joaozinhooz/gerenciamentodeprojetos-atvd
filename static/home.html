@@ -141,7 +141,7 @@
 <!-- Substitua o JavaScript do localStorage pelo código que busca os projetos do servidor -->
 <script>
     window.onload = async function() {
-        await carregarProjetos(); // Chama a função para carregar projetos ao iniciar
+        await carregarProjetos(); // Carrega a lista de projetos ao iniciar a página
 
         // Adiciona evento de submit ao formulário de cadastrar atividade
         const form = document.getElementById('cadastrarAtividadeForm');
@@ -181,52 +181,77 @@
     };
 
     async function carregarProjetos() {
-        const response = await fetch('/projetos'); // Obtém os projetos do servidor
-        
-        if (!response.ok) {
-            console.error('Erro ao buscar projetos:', response.statusText);
-            document.getElementById('projectList').innerHTML = '<p class="text-center">Erro ao carregar projetos.</p>';
-            return;
-        }
-
-        const projects = await response.json();
-        const projectList = document.getElementById('projectList');
-        projectList.innerHTML = ''; // Limpa a lista existente
-
-        if (projects.length === 0) {
-            projectList.innerHTML = '<p class="text-center">Nenhum projeto cadastrado.</p>';
-            return;
-        }
-
-        // Criar elementos para cada projeto
-        projects.forEach((project) => {
-            const projectItem = document.createElement('div');
-            projectItem.classList.add('project-item');
-            projectItem.innerHTML = `
-                <h6>${project.nome} <i class="bi bi-trash delete-btn" onclick="deleteProject(${project.id})"></i></h6>
-                <p><strong>Descrição:</strong> ${project.descricao}</p>
-                <p><strong>Tecnologias:</strong> ${project.tecnologias}</p>
-                <p><strong>Data de Início:</strong> ${project.data_inicio}</p>
-                <h6>Atividades:</h6>
-            `;
-
-            // Adicionar as atividades se existirem
-            if (project.activities && project.activities.length > 0) {
-                const activityList = document.createElement('ul');
-                project.activities.forEach(activity => {
-                    const activityItem = document.createElement('li');
-                    activityItem.innerHTML = `<strong>${activity.description}</strong> (Vencimento: ${activity.due_date})`;
-                    activityList.appendChild(activityItem);
-                });
-                projectItem.appendChild(activityList);
-            } else {
-                projectItem.innerHTML += '<p>Nenhuma atividade cadastrada.</p>';
-            }
-
-            projectList.appendChild(projectItem);
-        });
+    const response = await fetch('/projetos'); // Obtém os projetos do servidor
+    
+    if (!response.ok) {
+        console.error('Erro ao buscar projetos:', response.statusText);
+        document.getElementById('projectList').innerHTML = '<p class="text-center">Erro ao carregar projetos.</p>';
+        return;
     }
+
+    const projects = await response.json();
+    const projectList = document.getElementById('projectList');
+    projectList.innerHTML = ''; // Limpa a lista existente
+
+    if (projects.length === 0) {
+        projectList.innerHTML = '<p class="text-center">Nenhum projeto cadastrado.</p>';
+        return;
+    }
+
+    // Para cada projeto, cria um card com informações do projeto e atividades associadas
+    projects.forEach((project) => {
+    const projectItem = document.createElement('div');
+    projectItem.classList.add('project-item');
+    
+    projectItem.innerHTML = `
+        <h6>${project.nome} <i class="bi bi-trash delete-btn" onclick="deleteProject(${project.id})"></i></h6>
+        <p><strong>Descrição:</strong> ${project.descricao}</p>
+        <p><strong>Tecnologias:</strong> ${project.tecnologias}</p>
+        <p><strong>Data de Início:</strong> ${project.data_inicio}</p>
+        <h6>Atividades:</h6>
+    `;
+
+    // Adiciona as atividades, se houver
+    if (project.atividades && project.atividades.length > 0) {
+        const activityList = document.createElement('ul'); // Lista de atividades
+        project.atividades.forEach(activity => {
+            const activityItem = document.createElement('li');
+            activityItem.innerHTML = `<strong>${activity.descricao}</strong> (Vencimento: ${activity.due_date})`;
+            activityList.appendChild(activityItem);
+        });
+        projectItem.appendChild(activityList); // Anexa a lista ao card do projeto
+    } else {
+        projectItem.innerHTML += '<p>Nenhuma atividade cadastrada.</p>';
+    }
+
+    projectList.appendChild(projectItem); // Adiciona o card do projeto ao contêiner de projetos
+});
+
+}
+
+
+
+async function deleteProject(projectId) {
+    try {
+        const response = await fetch(`/projetos/${projectId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Projeto e suas atividades deletados com sucesso!');
+            await carregarProjetos(); // Recarrega a lista de projetos
+        } else {
+            const error = await response.json();
+            alert('Erro ao deletar projeto: ' + error.error);
+        }
+    } catch (error) {
+        console.error('Erro ao deletar projeto:', error);
+        alert('Erro ao deletar projeto');
+    }
+}
+
 </script>
+
 
 
 
