@@ -1,12 +1,21 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banco.db'  # Caminho do seu banco de dados
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+# Modelo do Usuário
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+
+    def __repr__(self):
+        return f'<User {self.email}>'
 
 # Modelo do Projeto
 class Projeto(db.Model):
@@ -30,6 +39,39 @@ class Atividade(db.Model):
 
     def __repr__(self):
         return f'<Atividade {self.descricao}>'
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Dados inválidos!'}), 400
+
+    # Verifica se o usuário já existe
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Usuário já existe!'}), 400
+
+    # Cadastra novo usuário
+    new_user = User(email=email, password=generate_password_hash(password))
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'message': 'Usuário cadastrado com sucesso!'}), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    
+    if user and check_password_hash(user.password, password):
+        return jsonify({'message': 'Login realizado com sucesso!'}), 200
+    else:
+        return jsonify({'error': 'Email ou senha incorretos!'}), 401
 
 @app.route('/cadastrarprojeto', methods=['POST'])
 def cadastrar_projeto():
@@ -86,11 +128,9 @@ def cadastrar_atividade():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-
-
 @app.route('/')
 def home():
-    return send_from_directory('static', 'home.html')
+    return send_from_directory('static', 'index.html')  # Atualizado para retornar index.html
 
 @app.route('/cadastrarprojeto')
 def cadastrar_projeto_page():
@@ -144,9 +184,8 @@ def delete_project(project_id):
 @app.route('/atividades', methods=['GET'])
 def get_atividades():
     atividades = Atividade.query.all()  # Recupera todas as atividades
-    atividades_list = [{'id': a.id, 'descricao': a.descricao, 'due_date': a.due_date, 'projeto_id': a.projeto_id} for a in atividades]
+    atividades_list = [{'id': a.id, 'descricao': a.descricao, 'due_date': a.data_vencimento, 'projeto_id': a.projeto_id} for a in atividades]
     return jsonify(atividades_list)
-
 
 if __name__ == '__main__':
     with app.app_context():

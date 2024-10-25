@@ -125,46 +125,65 @@
     let registeredUser = null;  // Variável para armazenar o usuário cadastrado
 
     // Validação do formulário de login
-    document.getElementById('login-form').addEventListener('submit', function (event) {
-        event.preventDefault();  // Evita o envio do formulário
+document.getElementById('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault();  // Evita o envio do formulário
 
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
-        // Verifica se o email e a senha são os mesmos do cadastro
-        if (registeredUser && email === registeredUser.email && password === registeredUser.password) {
-            showNotification("Login realizado com sucesso!", "success");
-            setTimeout(() => {
-                window.location.href = "home.html";  // Redireciona para a página home após 2 segundos
-            }, 2000);
-        } else {
-            showNotification("Email ou senha incorretos. Tente novamente.", "danger");
-        }
+    // Enviar dados para o servidor
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
     });
 
-    // Validação do formulário de cadastro
-    document.getElementById('register-form').addEventListener('submit', function (event) {
-        event.preventDefault();  // Evita o envio do formulário
+    if (response.ok) {
+        showNotification("Login realizado com sucesso!", "success");
+        setTimeout(() => {
+            window.location.href = "/static/home.html";  // Redireciona para a página home
+        }, 2000);
+    } else {
+        const errorData = await response.json();
+        showNotification(errorData.error, "danger");
+    }
+});
 
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('registerConfirmPassword').value;
+// Validação do formulário de cadastro
+document.getElementById('register-form').addEventListener('submit', async function (event) {
+    event.preventDefault();  // Evita o envio do formulário
 
-        // Verifica se as senhas coincidem
-        if (password !== confirmPassword) {
-            showNotification("As senhas não coincidem. Tente novamente.", "danger");
-            return;
-        }
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
 
-        // Simula o cadastro do usuário
-        registeredUser = { name, email, password };
+    // Verifica se as senhas coincidem
+    if (password !== confirmPassword) {
+        showNotification("As senhas não coincidem. Tente novamente.", "danger");
+        return;
+    }
+
+    // Enviar dados para o servidor
+    const response = await fetch('/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+    });
+
+    if (response.ok) {
         showNotification("Cadastro realizado com sucesso! Agora faça o login.", "success");
-
-        // Alterna para o formulário de login após o cadastro
         document.getElementById('register-form').style.display = 'none';
         document.getElementById('login-form').style.display = 'block';
-    });
+    } else {
+        const errorData = await response.json();
+        showNotification(errorData.error, "danger");
+    }
+});
 </script>
 
 </body>
