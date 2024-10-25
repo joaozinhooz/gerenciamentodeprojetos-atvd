@@ -63,6 +63,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: -10px;
+            margin-bottom: 10px;
         }
 
         .topbar img {
@@ -99,6 +101,22 @@
             border: 2px solid #6c63ff;
             height: calc(100vh - 100px);
         }
+
+        .btn-transparent {
+    background: none; /* Remove o fundo */
+    border: none; /* Remove a borda */
+    color: #fff; /* Define a cor do ícone */
+    padding: 0; /* Remove o preenchimento */
+    cursor: pointer; /* Cursor de pointer */
+}
+
+.btn-transparent:hover {
+    background: none; /* Remove o fundo */
+    border: none; /* Remove a borda */
+    color: #ff0000; /* Define a cor do ícone */
+    padding: 0; /* Remove o preenchimento */
+    cursor: pointer; /* Cursor de pointer */
+}
     </style>
 </head>
 <body>
@@ -120,6 +138,9 @@
                 <img src="https://via.placeholder.com/40" alt="Profile Image">
                 <h6>Hello, João</h6>
             </div>
+            <button id="logoutBtn" class="btn btn-transparent">
+                <i class="bi bi-box-arrow-right"></i>
+            </button> <!-- Botão de Logout -->
         </div>
 
         <!-- Seção principal (conteúdo) -->
@@ -129,6 +150,13 @@
 
     </div>
 
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+                // Aqui você pode adicionar qualquer lógica de logout, se necessário.
+                window.location.href = 'index.html'; // Redireciona para index.html
+            });
+        
+    </script>
     
 </body>
 </html>

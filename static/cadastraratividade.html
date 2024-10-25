@@ -54,6 +54,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: -10px;
+            margin-bottom: 10px;
         }
         .topbar img {
             width: 40px;
@@ -76,6 +78,42 @@
         .btn {
             margin-top: 10px;
         }
+
+        /* Estilo para a barra de rolagem moderna */
+        ::-webkit-scrollbar {
+            width: 0px; /* Largura da scrollbar */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent; /* Cor de fundo da pista da scrollbar */
+            border-radius: 10px; /* Bordas arredondadas */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f8f9fa; /* Cor do "polegar" da scrollbar */
+            border-radius: 10px; /* Bordas arredondadas */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f8f9fa; /* Cor do "polegar" ao passar o mouse */
+        }
+
+        .btn-transparent {
+    background: none; /* Remove o fundo */
+    border: none; /* Remove a borda */
+    color: #fff; /* Define a cor do ícone */
+    padding: 0; /* Remove o preenchimento */
+    cursor: pointer; /* Cursor de pointer */
+    margin-top: -1px;
+}
+
+.btn-transparent:hover {
+    background: none; /* Remove o fundo */
+    border: none; /* Remove a borda */
+    color: #ff0000; /* Define a cor do ícone */
+    padding: 0; /* Remove o preenchimento */
+    cursor: pointer; /* Cursor de pointer */
+}
     </style>
 </head>
 <body>
@@ -97,6 +135,9 @@
                 <img src="https://via.placeholder.com/40" alt="Profile Image">
                 <h6>Hello, João</h6>
             </div>
+            <button id="logoutBtn" class="btn btn-transparent">
+                <i class="bi bi-box-arrow-right"></i>
+            </button> <!-- Botão de Logout -->
         </div>
 
         <!-- Seção principal (conteúdo) -->
@@ -173,7 +214,15 @@
                 console.error("Erro ao cadastrar atividade:", error);
                 alert(`Erro: ${error.error}`);  // Mostra um alerta com a mensagem de erro
             }
+
+            
         });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+                // Aqui você pode adicionar qualquer lógica de logout, se necessário.
+                window.location.href = 'index.html'; // Redireciona para index.html
+            });
+        
     </script>
     
 </body>
