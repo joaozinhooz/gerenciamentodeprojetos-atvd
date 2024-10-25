@@ -1,190 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login e Cadastro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        body {
-            background-color: #f7f7f7;
-        }
-        .card {
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .form-toggle {
-            cursor: pointer;
-            color: #007bff;
-        }
-        .notify {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 300px;
-            z-index: 1050;
-            display: none;
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
-        .notify.show {
-            display: block;
-            opacity: 1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login e Cadastro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/static/assets/logoec.png" type="image/x-icon">
+
+  <style>
+    body {
+      background-image: url('/static/assets/back.png');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      justify-content: flex-end; /* Move o container para a direita */
+      align-items: center;
+      font-family: 'Arial', sans-serif;
+      padding-right: 50px; /* Adiciona um espaço da borda direita da tela */
+    }
+
+    .form-container {
+      background-color: rgba(44, 44, 44, 0.2);
+      padding: 30px;
+      color: aliceblue;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 380px;
+      text-align: center;
+      margin-left: 100px;
+      transition: all 0.3s ease;
+    }
+
+    .form-container:hover {
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control {
+      border: 2px solid #ccc;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #000;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 2px solid #000000;
+      border-radius: 25px;
+      box-sizing: border-box;
+      font-size: 16px;
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      transition: all 0.3s ease;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background-color: #000;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #222121;
+      transform: scale(1.05);
+    }
+
+    .switch-link {
+      cursor: pointer;
+      color: #ffffff;
+      text-decoration: underline;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .switch-link:hover {
+      color: #000000;
+    }
+
+    .alert {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-
-<div class="container">
+  <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title text-center">Login e Cadastro</h3>
-                    
-                    <!-- Formulário de Login -->
-                    <form id="login-form">
-                        <div class="mb-3">
-                            <label for="loginEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="loginEmail" placeholder="Digite seu email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="loginPassword" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="loginPassword" placeholder="Digite sua senha" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </div>
-                        <p class="text-center mt-3">
-                            Não tem uma conta? <span class="form-toggle">Cadastre-se</span>
-                        </p>
-                    </form>
+      <div class="col-md-6">
+        <!-- Área de notificações -->
+        <div id="message" class="alert"></div>
 
-                    <!-- Formulário de Cadastro -->
-                    <form id="register-form" style="display: none;">
-                        <div class="mb-3">
-                            <label for="registerName" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="registerName" placeholder="Digite seu nome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="registerEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="registerEmail" placeholder="Digite seu email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="registerPassword" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="registerPassword" placeholder="Digite sua senha" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="registerConfirmPassword" class="form-label">Confirme a Senha</label>
-                            <input type="password" class="form-control" id="registerConfirmPassword" placeholder="Confirme sua senha" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">Cadastrar</button>
-                        </div>
-                        <p class="text-center mt-3">
-                            Já tem uma conta? <span class="form-toggle">Faça login</span>
-                        </p>
-                    </form>
-                </div>
+        <!-- Formulário de Login -->
+        <div id="loginForm" class="form-container">
+          <h2>Login</h2>
+          <form>
+            <div class="mb-3">
+              <input type="email" class="form-control" id="loginEmail" placeholder="Digite seu e-mail">
             </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="loginPassword" placeholder="Digite sua senha">
+            </div>
+            <button type="button" onclick="login()">Entrar</button>
+            <p class="mt-3">Não tem uma conta? <span class="switch-link" onclick="showRegisterForm()">Cadastre-se</span></p>
+          </form>
         </div>
+
+        <!-- Formulário de Cadastro -->
+        <div id="registerForm" class="form-container" style="display: none;">
+          <h2>Cadastro</h2>
+          <form>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="registerName" placeholder="Digite seu nome">
+            </div>
+            <div class="mb-3">
+              <input type="email" class="form-control" id="registerEmail" placeholder="Digite seu e-mail">
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="registerPassword" placeholder="Crie sua senha">
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="confirmPassword" placeholder="Confirme sua senha">
+            </div>
+            <button type="button" onclick="register()">Cadastrar</button>
+            <p class="mt-3">Já tem uma conta? <span class="switch-link" onclick="showLoginForm()">Entrar</span></p>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Notificações -->
-<div id="notify-container"></div>
+  <script>
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.className = `alert alert-${type}`;
+      messageDiv.textContent = message;
+      messageDiv.style.display = 'block';
 
-<script>
-    // Alternar entre formulários de login e cadastro
-    document.querySelectorAll('.form-toggle').forEach(function (element) {
-        element.addEventListener('click', function () {
-            document.getElementById('login-form').style.display = 
-                document.getElementById('login-form').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('register-form').style.display = 
-                document.getElementById('register-form').style.display === 'none' ? 'block' : 'none';
-        });
-    });
-
-    // Função para exibir notificações animadas
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notify alert alert-${type} show`;
-        notification.innerHTML = message;
-
-        const container = document.getElementById('notify-container');
-        container.appendChild(notification);
-
-        // Remover notificação após 3 segundos
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 500); // Remover completamente após animação
-        }, 3000);
+      setTimeout(() => {
+        messageDiv.style.display = 'none';
+      }, 3000);
     }
 
-    let registeredUser = null;  // Variável para armazenar o usuário cadastrado
+    function showRegisterForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+    }
 
-    // Validação do formulário de login
-document.getElementById('login-form').addEventListener('submit', async function (event) {
-    event.preventDefault();  // Evita o envio do formulário
+    function showLoginForm() {
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }
 
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
 
-    // Enviar dados para o servidor
-    const response = await fetch('/login', {
+      const response = await fetch('/login', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
-    });
+      });
 
-    if (response.ok) {
-        showNotification("Login realizado com sucesso!", "success");
-        setTimeout(() => {
-            window.location.href = "/static/home.html";  // Redireciona para a página home
-        }, 2000);
-    } else {
+      if (response.ok) {
+        showMessage("Login realizado com sucesso!", "success");
+        setTimeout(() => window.location.href = "/static/home.html", 1000);
+      } else {
         const errorData = await response.json();
-        showNotification(errorData.error, "danger");
+        showMessage(errorData.error, "danger");
+      }
     }
-});
 
-// Validação do formulário de cadastro
-document.getElementById('register-form').addEventListener('submit', async function (event) {
-    event.preventDefault();  // Evita o envio do formulário
+    async function register() {
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
 
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-    // Verifica se as senhas coincidem
-    if (password !== confirmPassword) {
-        showNotification("As senhas não coincidem. Tente novamente.", "danger");
+      if (password !== confirmPassword) {
+        showMessage("As senhas não coincidem!", "danger");
         return;
-    }
+      }
 
-    // Enviar dados para o servidor
-    const response = await fetch('/register', {
+      const response = await fetch('/register', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-    });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
 
-    if (response.ok) {
-        showNotification("Cadastro realizado com sucesso! Agora faça o login.", "success");
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('login-form').style.display = 'block';
-    } else {
+      if (response.ok) {
+        showMessage("Cadastro realizado com sucesso!", "success");
+        setTimeout(showLoginForm, 1000);
+      } else {
         const errorData = await response.json();
-        showNotification(errorData.error, "danger");
+        showMessage(errorData.error, "danger");
+      }
     }
-});
-</script>
-
+  </script>
 </body>
 </html>
